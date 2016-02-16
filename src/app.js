@@ -1,46 +1,25 @@
-import { VisibilityFilters } from './actions'
-import { combineReducers } from 'redux'
+import { createStore } from 'redux'
+import todoApp from './reducers'
+import { addTodo, completeTodo, setVisibilityFilter, VisibilityFilters } from './actions'
 
-const initialState = {
-  visibilityFilter: VisibilityFilters.SHOW_ALL,
-  todos: []
-}
+let store = createStore(todoApp);
 
-function visibilityFilter(state = SHOW_ALL, action) {
-  switch (action.type) {
-  case SET_VISIBILITY_FILTER:
-    return action.filter
-  default:
-    return state
-  }
-}
+// Log the initial state
+console.log(store.getState());
 
-function todos(state = [], action) {
-  switch (action.type) {
-    case ADD_TODO:
-      return [
-        ...state,
-        {
-          text: action.text,
-          completed: false
-        }
-      ]
-    case COMPLETE_TODO:
-      return [
-        ...state.slice(0, action.index),
-        Object.assign({}, state[action.index], {
-          completed: true
-        }),
-        ...state.slice(action.index + 1)
-      ]
-    default:
-      return state
-  }
-}
+// Every time the state changes, log it
+// Note that subscribe() returns a function for unregistering the listener
+let unsubscribe = store.subscribe(() =>
+    console.log(store.getState())
+);
 
-function todoApp(state = {}, action) {
-  return {
-    visibilityFilter: visibilityFilter(state.visibilityFilter, action),
-    todos: todos(state.todos, action)
-  }
-}
+// Dispatch some actions
+store.dispatch(addTodo('Learn about actions'));
+store.dispatch(addTodo('Learn about reducers'));
+store.dispatch(addTodo('Learn about store'));
+store.dispatch(completeTodo(0));
+store.dispatch(completeTodo(1));
+store.dispatch(setVisibilityFilter(VisibilityFilters.SHOW_COMPLETED));
+
+// Stop listening to state updates
+unsubscribe();
